@@ -33,7 +33,7 @@
                     <navigationItem key="navigationItem" title="Categories" id="Zve-fm-aFK">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="PpX-bG-fGa">
                             <connections>
-                                <action selector="addBarButtonPressed:" destination="4os-ru-WVh" id="hOa-49-Y3u"/>
+                                <action selector="addBarButtonPressed:" destination="4os-ru-WVh" id="lnA-rJ-To6"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

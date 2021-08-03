@@ -75,7 +75,6 @@ class CategoryTVC: UITableViewController {
     
     @IBAction func addBarButtonPressed(_ sender: Any) {
         let alert = UIAlertController(title: "Add New Category", message: "", preferredStyle: .alert)
-
         alert.addTextField { textField in
             textField.placeholder = "Category placeholder"
         }

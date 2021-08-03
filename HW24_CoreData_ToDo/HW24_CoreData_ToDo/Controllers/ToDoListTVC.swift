@@ -8,7 +8,7 @@
 import UIKit
 import CoreData
 
-class ToDoListTVC: UITableViewController {
+class ToDoListTVC: UITableViewController, UISearchResultsUpdating, UISearchBarDelegate {
     
     var selectedCategory: Category? {
         didSet {
@@ -19,54 +19,78 @@ class ToDoListTVC: UITableViewController {
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     var itemArray = [Item]()
-
+    
+    var searchController: UISearchController!
+    var searchResults: [Item] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         loadItems()
+        setUpUISearchButton()
+        self.tableView.isEditing = true
     }
+    
 
     // MARK: - Table view data source
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return itemArray.count
-    }
+}
+    
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
+       let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
         cell.textLabel?.text = itemArray[indexPath.row].title
         cell.accessoryType = itemArray[indexPath.row].done ? .checkmark : .none
+    
         return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // deselect
         tableView.deselectRow(at: indexPath, animated: true)
-//        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         itemArray[indexPath.row].done.toggle()
         self.saveItems()
         tableView.reloadRows(at: [indexPath], with: .fade)
     }
 
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
+            itemArray.remove(at: indexPath.row)
+            self.saveItems()
+            tableView.reloadData()
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }
     }
-    */
+    
+    func filterContentForSearchText(_ searchText: String) {
+            searchResults = itemArray.filter({ (item:Item) -> Bool in
+                let titleMatch = item.title!.range(of: searchText, options: NSString.CompareOptions.caseInsensitive)
+                return titleMatch != nil}
+            )
+        }
+        
+        func updateSearchResults(for searchController: UISearchController) {
+            if let searchText = searchController.searchBar.text {
+                filterContentForSearchText(searchText)
+                tableView.reloadData()
+            }
+        }
+    
+    override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .none
+    }
+
+    override func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
+        return false
+    }
+    // Handles reordering of Cells
+    override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        let movedItem = itemArray[sourceIndexPath.row]
+        itemArray.remove(at: sourceIndexPath.row)
+        itemArray.insert(movedItem, at: destinationIndexPath.row)
+    }
 
     /*
     // Override to support rearranging the table view.
@@ -92,7 +116,6 @@ class ToDoListTVC: UITableViewController {
         // Pass the selected object to the new view controller.
     }
     */
-
     
     @IBAction func addItemPressed(_ sender: Any) {
         let alert = UIAlertController(title: "Add New Item", message: "", preferredStyle: .alert)
@@ -168,5 +191,20 @@ class ToDoListTVC: UITableViewController {
         } catch {
             print("Error saving context: \(error)")
         }
+    }
+    
+    private func setUpUISearchButton() {
+        searchController = UISearchController(searchResultsController: nil)
+        tableView.tableHeaderView = searchController.searchBar
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+
+        // Search Bar options
+        searchController.searchBar.placeholder = "Search item"
+        
+        // Search Bar Disappears when tapped, hence the code line below is a MUST
+        searchController.hidesNavigationBarDuringPresentation = false
+        // Add a colour border for the search bar
+        searchController.searchBar.tintColor = UIColor.systemGreen
     }
 }
