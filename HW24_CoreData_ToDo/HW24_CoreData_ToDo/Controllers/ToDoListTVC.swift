@@ -9,43 +9,41 @@ import UIKit
 import CoreData
 
 class ToDoListTVC: UITableViewController, UISearchResultsUpdating, UISearchBarDelegate {
-    
+
     var selectedCategory: Category? {
         didSet {
             self.title = selectedCategory?.name
         }
     }
-    
+
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    
+
     var itemArray = [Item]()
-    
+
     var searchController: UISearchController!
     var searchResults: [Item] = []
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         loadItems()
         setUpUISearchButton()
-        self.tableView.isEditing = true
+        //self.tableView.isEditing = true
     }
-    
+
 
     // MARK: - Table view data source
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return itemArray.count
-}
-    
+    }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-       let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
         cell.textLabel?.text = itemArray[indexPath.row].title
         cell.accessoryType = itemArray[indexPath.row].done ? .checkmark : .none
-    
         return cell
     }
-    
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // deselect
         tableView.deselectRow(at: indexPath, animated: true)
@@ -54,7 +52,7 @@ class ToDoListTVC: UITableViewController, UISearchResultsUpdating, UISearchBarDe
         tableView.reloadRows(at: [indexPath], with: .fade)
     }
 
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+    /*override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             itemArray.remove(at: indexPath.row)
             self.saveItems()
@@ -62,25 +60,48 @@ class ToDoListTVC: UITableViewController, UISearchResultsUpdating, UISearchBarDe
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }
-    }
-    
-    func filterContentForSearchText(_ searchText: String) {
-            searchResults = itemArray.filter({ (item:Item) -> Bool in
-                let titleMatch = item.title!.range(of: searchText, options: NSString.CompareOptions.caseInsensitive)
-                return titleMatch != nil}
-            )
-        }
-        
-        func updateSearchResults(for searchController: UISearchController) {
-            if let searchText = searchController.searchBar.text {
-                filterContentForSearchText(searchText)
-                tableView.reloadData()
+    }*/
+
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == UITableViewCell.EditingStyle.delete {
+            // To delete from core data we need to fetch the object we are looking for
+            //
+            if let title = itemArray[indexPath.row].title {
+                let request: NSFetchRequest<Item> = Item.fetchRequest()
+                request.predicate = NSPredicate(format: "name MATCHES %@", title)
+                //request.predicate = NSPredicate(format: "name==\(category)")
+
+                if let items = try? context.fetch(request) {
+                    for item in items {
+                        context.delete(item)
+                    }
+                    // Save the context so our changes persist and We also have to delete the local copy of the data
+                    //
+                    self.itemArray.remove(at: indexPath.row)
+                    saveItems()
+                    tableView.reloadData()
+                }
             }
         }
-    
-    override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-        return .none
     }
+
+    func filterContentForSearchText(_ searchText: String) {
+        searchResults = itemArray.filter({ (item: Item) -> Bool in
+            let titleMatch = item.title!.range(of: searchText, options: NSString.CompareOptions.caseInsensitive)
+            return titleMatch != nil }
+        )
+    }
+
+    func updateSearchResults(for searchController: UISearchController) {
+        if let searchText = searchController.searchBar.text {
+            filterContentForSearchText(searchText)
+            tableView.reloadData()
+        }
+    }
+
+    /*override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .none
+    }*/
 
     override func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
         return false
@@ -116,7 +137,7 @@ class ToDoListTVC: UITableViewController, UISearchResultsUpdating, UISearchBarDe
         // Pass the selected object to the new view controller.
     }
     */
-    
+
     @IBAction func addItemPressed(_ sender: Any) {
         let alert = UIAlertController(title: "Add New Item", message: "", preferredStyle: .alert)
 
@@ -145,9 +166,9 @@ class ToDoListTVC: UITableViewController, UISearchResultsUpdating, UISearchBarDe
 
         self.present(alert, animated: true)
     }
-    
+
     //MARK: - SAVE AND FETCH ITEMS FROM DB
-    
+
     private func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest()) {
         if let name = selectedCategory?.name {
             let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", name)
@@ -162,10 +183,10 @@ class ToDoListTVC: UITableViewController, UISearchResultsUpdating, UISearchBarDe
             tableView.reloadData()
         }
     }
-    
-    
+
+
     // Универсальная ф-я со входным предикатом
-    
+
 //    private func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
 //        if let name = selectedCategory?.name {
 //            let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", name)
@@ -184,7 +205,7 @@ class ToDoListTVC: UITableViewController, UISearchResultsUpdating, UISearchBarDe
 //            tableView.reloadData()
 //        }
 //    }
-    
+
     private func saveItems() {
         do {
             try context.save()
@@ -192,7 +213,7 @@ class ToDoListTVC: UITableViewController, UISearchResultsUpdating, UISearchBarDe
             print("Error saving context: \(error)")
         }
     }
-    
+
     private func setUpUISearchButton() {
         searchController = UISearchController(searchResultsController: nil)
         tableView.tableHeaderView = searchController.searchBar
@@ -201,7 +222,7 @@ class ToDoListTVC: UITableViewController, UISearchResultsUpdating, UISearchBarDe
 
         // Search Bar options
         searchController.searchBar.placeholder = "Search item"
-        
+
         // Search Bar Disappears when tapped, hence the code line below is a MUST
         searchController.hidesNavigationBarDuringPresentation = false
         // Add a colour border for the search bar

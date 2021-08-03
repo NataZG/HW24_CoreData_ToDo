@@ -9,9 +9,9 @@ import UIKit
 import CoreData
 
 class CategoryTVC: UITableViewController {
-    
+
     var categories = [Category]()
-    
+
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
     override func viewDidLoad() {
@@ -57,7 +57,21 @@ class CategoryTVC: UITableViewController {
             }
         }
     }
-    
+
+    /* override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .none
+    }
+
+    override func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
+        return false
+    }
+    // Handles reordering of Cells
+    override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        let movedItem = categories[sourceIndexPath.row]
+        categories.remove(at: sourceIndexPath.row)
+        categories.insert(movedItem, at: destinationIndexPath.row)
+    }*/
+
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "goToItems", sender: nil)
     }
@@ -71,8 +85,8 @@ class CategoryTVC: UITableViewController {
             }
         }
     }
-    
-    
+
+
     @IBAction func addBarButtonPressed(_ sender: Any) {
         let alert = UIAlertController(title: "Add New Category", message: "", preferredStyle: .alert)
         alert.addTextField { textField in
@@ -98,9 +112,9 @@ class CategoryTVC: UITableViewController {
 
         self.present(alert, animated: true)
     }
-    
+
     //MARK: - SAVE AND FETCH CATEGORIES FROM DB
-    
+
     private func loadCategories(with request: NSFetchRequest<Category> = Category.fetchRequest()) {
         do {
             categories = try context.fetch(request)
@@ -109,7 +123,7 @@ class CategoryTVC: UITableViewController {
         }
         tableView.reloadData()
     }
-    
+
     private func saveCategories() {
         do {
             try context.save()
