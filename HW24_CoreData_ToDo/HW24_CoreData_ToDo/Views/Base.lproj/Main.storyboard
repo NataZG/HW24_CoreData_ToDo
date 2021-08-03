@@ -10,7 +10,7 @@
         <!--Categories-->
         <scene sceneID="p0N-nL-6gy">
             <objects>
-                <tableViewController id="4os-ru-WVh" customClass="CategoryViewController" customModule="ToDoCoreData" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController id="4os-ru-WVh" customClass="CategoryTVC" customModule="HW24_CoreData_ToDo" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="BRt-cD-Zk0">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -48,7 +48,7 @@
         <!--Category-->
         <scene sceneID="jFA-kv-rh8">
             <objects>
-                <tableViewController id="wQA-SO-VnR" customClass="ToDoListViewController" customModule="ToDoCoreData" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController id="wQA-SO-VnR" customClass="ToDoListTVC" customModule="HW24_CoreData_ToDo" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="hWS-sE-ojk">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
