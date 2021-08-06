@@ -75,8 +75,6 @@ class ToDoListTVC: UITableViewController, UISearchResultsUpdating, UISearchBarDe
                     for item in items {
                         context.delete(item)
                     }
-                    // Save the context so our changes persist and We also have to delete the local copy of the data
-                    //
                     self.itemArray.remove(at: indexPath.row)
                     saveItems()
                     tableView.reloadData()
